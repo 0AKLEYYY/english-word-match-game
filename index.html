@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>英文單字圖片消消樂</title>
+  <style>
+    :root {
+      --bg: #fffaf3;
+      --panel: #ffffff;
+      --ink: #27324a;
+      --muted: #69728a;
+      --primary: #6f6bd8;
+      --primary-dark: #5753bd;
+      --accent: #ffb45c;
+      --mint: #bfe9dc;
+      --sky: #cde9ff;
+      --pink: #ffd4df;
+      --success: #2f9e74;
+      --danger: #d9485f;
+      --line: #dfe3ef;
+      --shadow: 0 10px 28px rgba(69, 73, 115, .12);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 12%, rgba(205,233,255,.65), transparent 28%),
+        radial-gradient(circle at 88% 18%, rgba(255,212,223,.55), transparent 24%),
+        var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", Arial, sans-serif;
+    }
+
+    button, input { font: inherit; }
+
+    button {
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 42px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(32px, 5vw, 58px);
+      line-height: 1.1;
+      letter-spacing: .5px;
+    }
+
+    .hero p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: clamp(17px, 2.2vw, 22px);
+    }
+
+    .panel {
+      background: rgba(255,255,255,.94);
+      border: 2px solid rgba(111,107,216,.10);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(20px, 3.4vw, 34px);
+    }
+
+    .hidden { display: none !important; }
+
+    .setup-grid {
+      display: grid;
+      gap: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 10px;
+      font-size: clamp(22px, 3vw, 30px);
+    }
+
+    .helper {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    .word-input-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    #wordInput {
+      width: 100%;
+      min-height: 58px;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 13px 16px;
+      font-size: clamp(18px, 2vw, 24px);
+      color: var(--ink);
+      outline: none;
+      background: #fff;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    #wordInput:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(111,107,216,.12);
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 18px;
+      min-height: 56px;
+      padding: 12px 22px;
+      font-weight: 800;
+      font-size: clamp(17px, 2vw, 21px);
+      transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
+      box-shadow: 0 7px 0 rgba(0,0,0,.08);
+    }
+
+    .btn:hover { filter: brightness(1.02); }
+    .btn:active { transform: translateY(3px); box-shadow: 0 4px 0 rgba(0,0,0,.08); }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-light { background: #f2f3fb; color: var(--ink); }
+    .btn-accent { background: var(--accent); color: #4b3521; }
+    .btn-danger { background: #ffe9ee; color: #a83049; }
+
+    .error {
+      min-height: 26px;
+      margin-top: 9px;
+      color: var(--danger);
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .chips-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .chips-title strong { font-size: 18px; }
+    .chips-title span { color: var(--muted); font-size: 14px; }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      border: 2px solid #e1e3ee;
+      background: #fff;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 3px 0 rgba(0,0,0,.05);
+    }
+
+    .chip.selected {
+      border-color: var(--primary);
+      background: #efefff;
+      color: var(--primary-dark);
+    }
+
+    .setup-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 4px;
+    }
+
+    .game-topbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .status {
+      min-height: 54px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: var(--muted);
+      font-size: clamp(18px, 2.4vw, 24px);
+      font-weight: 800;
+    }
+
+    .status.success { color: var(--success); }
+    .status.try { color: var(--danger); }
+
+    .sound-toggle {
+      border: 2px solid var(--line);
+      background: #fff;
+      border-radius: 16px;
+      min-height: 52px;
+      padding: 8px 14px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: clamp(10px, 1.7vw, 18px);
+      perspective: 1100px;
+    }
+
+    .card {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      min-height: 118px;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      perspective: 1000px;
+      border-radius: 20px;
+    }
+
+    .card-inner {
+      position: absolute;
+      inset: 0;
+      transition: transform .5s cubic-bezier(.2,.75,.25,1);
+      transform-style: preserve-3d;
+      border-radius: 20px;
+    }
+
+    .card.is-flipped .card-inner,
+    .card.is-matched .card-inner { transform: rotateY(180deg); }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 20px;
+      display: grid;
+      place-items: center;
+      border: 3px solid rgba(39,50,74,.12);
+      box-shadow: 0 8px 18px rgba(59,63,103,.14);
+      user-select: none;
+    }
+
+    .card-back {
+      background: linear-gradient(145deg, #7a77e7, #615cc9);
+      color: white;
+      font-weight: 900;
+      font-size: clamp(34px, 5vw, 58px);
+      border-color: rgba(255,255,255,.18);
+    }
+
+    .card-back::after {
+      content: "?";
+      width: 62%;
+      height: 62%;
+      display: grid;
+      place-items: center;
+      border: 4px dashed rgba(255,255,255,.75);
+      border-radius: 18px;
+    }
+
+    .card-front {
+      background: #fff;
+      transform: rotateY(180deg);
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    .card.word .card-front {
+      background: #eef7ff;
+      font-size: clamp(24px, 4vw, 40px);
+      font-weight: 900;
+      letter-spacing: .3px;
+    }
+
+    .card.image .card-front {
+      background: #fff8e9;
+      font-size: clamp(48px, 8vw, 82px);
+    }
+
+    .card.is-matched .card-face {
+      border-color: rgba(47,158,116,.55);
+      box-shadow: 0 0 0 5px rgba(47,158,116,.10), 0 8px 18px rgba(59,63,103,.10);
+    }
+
+    .card.is-matched::after {
+      content: "✓";
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--success);
+      color: white;
+      font-weight: 900;
+      z-index: 5;
+      transform: translateZ(1px);
+    }
+
+    .game-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(32,37,58,.38);
+      padding: 20px;
+      z-index: 20;
+    }
+
+    .modal {
+      width: min(520px, 100%);
+      background: white;
+      border-radius: 28px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 24px 70px rgba(31,35,52,.25);
+      border: 3px solid #ffe0a9;
+    }
+
+    .modal .celebrate { font-size: 72px; line-height: 1; }
+    .modal h2 { font-size: clamp(34px, 6vw, 52px); margin: 12px 0 8px; }
+
+    .modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 22px;
+    }
+
+    .tiny-note {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      margin-top: 18px;
+    }
+
+    @media (max-width: 760px) {
+      .app { width: min(100% - 18px, 1180px); padding-top: 18px; }
+      .word-input-row { grid-template-columns: 1fr; }
+      .game-topbar { grid-template-columns: 1fr; }
+      .status { grid-row: 1; }
+      .sound-toggle { width: 100%; }
+      .game-board { grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); }
+      .card { min-height: 92px; }
+    }
+
+    @media (min-width: 1000px) {
+      .game-board { grid-template-columns: repeat(6, 1fr); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { scroll-behavior: auto !important; }
+      .card-inner, .btn { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <h1>英文單字圖片消消樂</h1>
+      <p>Match the word with the correct picture!</p>
+    </header>
+
+    <section id="setupScreen" class="panel setup-grid" aria-labelledby="setupTitle">
+      <div>
+        <h2 id="setupTitle" class="section-title">今天要複習哪些單字？</h2>
+        <p class="helper">輸入英文單字，可用逗號、空格或換行分隔。也可以直接點下面的單字快速加入。</p>
+        <div class="word-input-row">
+          <input id="wordInput" type="text" autocomplete="off" spellcheck="false" placeholder="例如：ant, bee, cat, fish, sun" aria-label="輸入本次練習單字" />
+          <button id="startBtn" class="btn btn-primary" type="button">Start Game</button>
+        </div>
+        <div id="inputError" class="error" role="alert" aria-live="polite"></div>
+      </div>
+
+      <div>
+        <div class="chips-title">
+          <strong>Available Words</strong>
+          <span>點一下即可加入 / 再點一下取消</span>
+        </div>
+        <div id="wordChips" class="chips" aria-label="可用單字清單"></div>
+      </div>
+
+      <div class="setup-actions">
+        <button id="clearBtn" class="btn btn-light" type="button">Clear</button>
+        <button id="randomBtn" class="btn btn-accent" type="button">🎲 Random Words</button>
+      </div>
+
+      <p class="tiny-note">小提醒：建議一次選 4～8 個單字，最適合在電子白板上進行翻牌遊戲。</p>
+    </section>
+
+    <section id="gameScreen" class="panel hidden" aria-labelledby="gameTitle">
+      <div class="game-topbar">
+        <div id="status" class="status">Find a match!</div>
+        <button id="soundBtn" class="sound-toggle" type="button" aria-pressed="true">🔊 Pronunciation</button>
+      </div>
+
+      <h2 id="gameTitle" class="hidden">英文單字圖片翻牌遊戲</h2>
+      <div id="gameBoard" class="game-board" aria-label="單字圖片翻牌遊戲"></div>
+
+      <div class="game-actions">
+        <button id="restartBtn" class="btn btn-accent" type="button">Restart</button>
+        <button id="changeWordsBtn" class="btn btn-light" type="button">Change Words</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="winModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+    <div class="modal">
+      <div class="celebrate" aria-hidden="true">🎉</div>
+      <h2 id="winTitle">Great job!</h2>
+      <p class="helper" style="margin-top:12px">All pairs matched!</p>
+      <div class="modal-actions">
+        <button id="playAgainBtn" class="btn btn-primary" type="button">Play Again</button>
+        <button id="modalChangeWordsBtn" class="btn btn-light" type="button">Change Words</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 內建「單字 → 圖片 / 圖示」資料庫。
+    // 之後要新增單字，只要在這裡加入一行即可。
+    const VOCAB = {
+      ant: "🐜",
+      bee: "🐝",
+      cat: "🐱",
+      duck: "🦆",
+      egg: "🥚",
+      fish: "🐟",
+      hat: "🎩",
+      kite: "🪁",
+      lion: "🦁",
+      milk: "🥛",
+      octopus: "🐙",
+      pig: "🐷",
+      rock: "🪨",
+      sun: "☀️",
+      van: "🚐",
+      wind: "💨",
+      box: "📦",
+      yoyo: "🪀"
+    };
+
+    const setupScreen = document.getElementById("setupScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const wordInput = document.getElementById("wordInput");
+    const inputError = document.getElementById("inputError");
+    const wordChips = document.getElementById("wordChips");
+    const startBtn = document.getElementById("startBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const randomBtn = document.getElementById("randomBtn");
+    const gameBoard = document.getElementById("gameBoard");
+    const status = document.getElementById("status");
+    const restartBtn = document.getElementById("restartBtn");
+    const changeWordsBtn = document.getElementById("changeWordsBtn");
+    const soundBtn = document.getElementById("soundBtn");
+    const winModal = document.getElementById("winModal");
+    const playAgainBtn = document.getElementById("playAgainBtn");
+    const modalChangeWordsBtn = document.getElementById("modalChangeWordsBtn");
+
+    let selectedWords = [];
+    let cards = [];
+    let firstCard = null;
+    let secondCard = null;
+    let boardLocked = false;
+    let matchedPairs = 0;
+    let soundOn = true;
+
+    const normalizeWord = (word) => word.trim().toLowerCase();
+
+    function parseInput(text) {
+      return [...new Set(
+        text
+          .split(/[\s,，、;；]+/)
+          .map(normalizeWord)
+          .filter(Boolean)
+      )];
+    }
+
+    function syncChips() {
+      const active = new Set(parseInput(wordInput.value));
+      [...wordChips.querySelectorAll(".chip")].forEach(chip => {
+        chip.classList.toggle("selected", active.has(chip.dataset.word));
+      });
+    }
+
+    function renderWordChips() {
+      wordChips.innerHTML = "";
+      Object.entries(VOCAB).forEach(([word, emoji]) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "chip";
+        button.dataset.word = word;
+        button.innerHTML = `<span>${emoji}</span><span>${word}</span>`;
+        button.addEventListener("click", () => {
+          const current = parseInput(wordInput.value);
+          const exists = current.includes(word);
+          const next = exists ? current.filter(item => item !== word) : [...current, word];
+          wordInput.value = next.join(", ");
+          inputError.textContent = "";
+          syncChips();
+        });
+        wordChips.appendChild(button);
+      });
+      syncChips();
+    }
+
+    function validateWords(words) {
+      if (words.length < 2) {
+        return { ok: false, message: "請至少選 2 個單字再開始遊戲。" };
+      }
+      const unsupported = words.filter(word => !Object.prototype.hasOwnProperty.call(VOCAB, word));
+      if (unsupported.length) {
+        return {
+          ok: false,
+          message: `${unsupported.join(", ")} 目前不在可用單字中。請重新選擇。`
+        };
+      }
+      return { ok: true, message: "" };
+    }
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function makeCards(words) {
+      return shuffle(words.flatMap(word => ([
+        { id: `${word}-word`, pair: word, type: "word", content: word },
+        { id: `${word}-image`, pair: word, type: "image", content: VOCAB[word] }
+      ])));
+    }
+
+    function setStatus(message, kind = "") {
+      status.textContent = message;
+      status.className = `status ${kind}`.trim();
+    }
+
+    function speakWord(word) {
+      if (!soundOn || !("speechSynthesis" in window)) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.lang = "en-US";
+      utterance.rate = 0.82;
+      utterance.pitch = 1.05;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function renderBoard() {
+      gameBoard.innerHTML = "";
+      cards.forEach(cardData => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = `card ${cardData.type}`;
+        card.dataset.id = cardData.id;
+        card.dataset.pair = cardData.pair;
+        card.dataset.type = cardData.type;
+        card.setAttribute("aria-label", "蓋牌");
+        card.innerHTML = `
+          <span class="card-inner">
+            <span class="card-face card-back" aria-hidden="true"></span>
+            <span class="card-face card-front">${cardData.content}</span>
+          </span>
+        `;
+        card.addEventListener("click", () => handleCardClick(card));
+        gameBoard.appendChild(card);
+      });
+    }
+
+    function resetTurn() {
+      firstCard = null;
+      secondCard = null;
+      boardLocked = false;
+    }
+
+    function handleCardClick(card) {
+      if (boardLocked || card.classList.contains("is-matched") || card === firstCard) return;
+
+      card.classList.add("is-flipped");
+      card.setAttribute("aria-label", card.dataset.type === "word" ? card.dataset.pair : `${card.dataset.pair} 的圖片`);
+      if (card.dataset.type === "word") speakWord(card.dataset.pair);
+
+      if (!firstCard) {
+        firstCard = card;
+        setStatus("Pick one more card!");
+        return;
+      }
+
+      secondCard = card;
+      boardLocked = true;
+
+      const isPair = firstCard.dataset.pair === secondCard.dataset.pair &&
+                     firstCard.dataset.type !== secondCard.dataset.type;
+
+      if (isPair) {
+        matchedPairs += 1;
+        setStatus("Great match!", "success");
+
+        setTimeout(() => {
+          firstCard.classList.add("is-matched");
+          secondCard.classList.add("is-matched");
+          firstCard.disabled = true;
+          secondCard.disabled = true;
+
+          if (matchedPairs === selectedWords.length) {
+            resetTurn();
+            setTimeout(showWinModal, 450);
+          } else {
+            resetTurn();
+            setStatus("Find the next match!");
+          }
+        }, 450);
+      } else {
+        setStatus("Try again!", "try");
+        setTimeout(() => {
+          firstCard.classList.remove("is-flipped");
+          secondCard.classList.remove("is-flipped");
+          firstCard.setAttribute("aria-label", "蓋牌");
+          secondCard.setAttribute("aria-label", "蓋牌");
+          resetTurn();
+          setStatus("Find a match!");
+        }, 950);
+      }
+    }
+
+    function startGame(words, save = true) {
+      selectedWords = [...words];
+      if (save) localStorage.setItem("wordMatchLastWords", selectedWords.join(", "));
+      cards = makeCards(selectedWords);
+      firstCard = null;
+      secondCard = null;
+      boardLocked = false;
+      matchedPairs = 0;
+      setStatus("Find a match!");
+      renderBoard();
+      setupScreen.classList.add("hidden");
+      gameScreen.classList.remove("hidden");
+      winModal.classList.add("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function beginFromInput() {
+      const words = parseInput(wordInput.value);
+      const result = validateWords(words);
+      if (!result.ok) {
+        inputError.textContent = result.message;
+        return;
+      }
+      inputError.textContent = "";
+      startGame(words);
+    }
+
+    function showWinModal() {
+      winModal.classList.remove("hidden");
+      playAgainBtn.focus();
+    }
+
+    function changeWords() {
+      winModal.classList.add("hidden");
+      gameScreen.classList.add("hidden");
+      setupScreen.classList.remove("hidden");
+      wordInput.value = selectedWords.join(", ");
+      syncChips();
+      inputError.textContent = "";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      wordInput.focus();
+    }
+
+    startBtn.addEventListener("click", beginFromInput);
+    wordInput.addEventListener("input", () => { inputError.textContent = ""; syncChips(); });
+    wordInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") beginFromInput();
+    });
+
+    clearBtn.addEventListener("click", () => {
+      wordInput.value = "";
+      inputError.textContent = "";
+      syncChips();
+      wordInput.focus();
+    });
+
+    randomBtn.addEventListener("click", () => {
+      const availableWords = Object.keys(VOCAB);
+      const randomWords = shuffle(availableWords).slice(0, Math.min(6, availableWords.length));
+      wordInput.value = randomWords.join(", ");
+      inputError.textContent = "";
+      syncChips();
+    });
+
+    restartBtn.addEventListener("click", () => startGame(selectedWords));
+    playAgainBtn.addEventListener("click", () => startGame(selectedWords));
+    changeWordsBtn.addEventListener("click", changeWords);
+    modalChangeWordsBtn.addEventListener("click", changeWords);
+
+    soundBtn.addEventListener("click", () => {
+      soundOn = !soundOn;
+      soundBtn.setAttribute("aria-pressed", String(soundOn));
+      soundBtn.textContent = soundOn ? "🔊 Pronunciation" : "🔇 Pronunciation";
+      if (!soundOn && "speechSynthesis" in window) window.speechSynthesis.cancel();
+    });
+
+    // 初始載入：顯示可用單字，並自動帶入上一次使用的單字。
+    renderWordChips();
+    const savedWords = localStorage.getItem("wordMatchLastWords");
+    wordInput.value = savedWords || "ant, bee, cat, fish, sun, duck";
+    syncChips();
+  </script>
+</body>
+</html>
