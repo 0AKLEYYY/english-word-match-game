@@ -3,6 +3,8 @@ English Word–Picture Memory Matching Game
 
 網站連結 : https://0akleyyy.github.io/english-word-match-game/
 ## 網站畫面
+<img width="1440" height="900" alt="截圖 2026-11-25 下午2 46 31" src="https://github.com/user-attachments/assets/5e75c2d9-ecd3-4f79-a3f9-14126c223944" />
+
 <img width="1277" height="890" alt="image" src="https://github.com/user-attachments/assets/ad988d00-c4e2-4386-8037-774b14a9f9a5" />
 
 ## 1.製作動機
